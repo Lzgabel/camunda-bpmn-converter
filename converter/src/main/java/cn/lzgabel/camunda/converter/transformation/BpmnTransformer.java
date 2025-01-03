@@ -12,7 +12,6 @@ import cn.lzgabel.camunda.converter.transformation.transformer.*;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
@@ -42,14 +41,15 @@ public final class BpmnTransformer {
 
   public BpmnModelInstance transformDefinitions(final ProcessDefinitionDto request) {
     final var context = new TransformContext();
-    final Consumer<FlowDto> consumer = (flow) -> handleFlow(flow, context);
     visitor.setContext(context);
 
     // 处理 node
     Optional.ofNullable(request.getNodes()).orElse(List.of()).forEach(visitor::visit);
 
     // 处理 flow
-    Optional.ofNullable(request.getFlows()).orElse(List.of()).forEach(consumer);
+    Optional.ofNullable(request.getFlows())
+        .orElse(List.of())
+        .forEach(flow -> this.handleFlow(flow, context));
 
     final var processDefinition =
         ProcessDefinition.builder()

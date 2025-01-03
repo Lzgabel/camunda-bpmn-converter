@@ -1,5 +1,7 @@
 package cn.lzgabel.camunda.converter.bean.event.start;
 
+import java.util.stream.Stream;
+
 /**
  * 〈功能简述〉<br>
  * 〈〉
@@ -30,5 +32,9 @@ public enum EventType {
 
   public boolean isEqual(String value) {
     return this.value.equals(value);
+  }
+
+  public static EventType from(final String value) {
+    return Stream.of(values()).filter(p -> p.value.equals(value)).findFirst().orElse(null);
   }
 }

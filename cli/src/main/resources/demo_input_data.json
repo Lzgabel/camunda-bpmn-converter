@@ -1,0 +1,24 @@
+{
+  "nodes": [
+    {
+      "id": "aa1",
+      "name": "请求回放1（开始）",
+      "type": "startEvent",
+      "eventType": "timer",
+      "timerDefinitionType": "date",
+      "timerDefinition": "1"
+    },
+    {
+      "id": "aa2",
+      "type": "endEvent",
+      "name": "交易创建"
+    }
+
+  ],
+  "flows": [
+    {
+      "source": "aa1",
+      "target": "aa2"
+    }
+  ]
+}

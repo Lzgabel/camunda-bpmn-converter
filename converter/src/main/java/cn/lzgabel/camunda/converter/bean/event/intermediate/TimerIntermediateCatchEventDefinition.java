@@ -17,7 +17,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class TimerIntermediateCatchEventDefinition extends IntermediateCatchEventDefinition {
 
-  @NonNull private String timerDefinition;
+  /** 时间定义表达式 */
+  @NonNull private String timerDefinitionExpression;
+
+  /** 时间定义类型：date/duration */
+  @NonNull private String timerDefinitionType;
 
   @Override
   public String getEventType() {
