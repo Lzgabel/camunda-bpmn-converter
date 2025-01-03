@@ -1,4 +1,6 @@
 {
+  "processId": "test",
+  "name": "name",
   "nodes": [
     {
       "id": "aa1",
@@ -11,6 +13,11 @@
     {
       "id": "aa2",
       "type": "endEvent",
+      "name": "交易结束"
+    },
+    {
+      "id": "aa3",
+      "type": "userTask",
       "name": "交易创建"
     }
 
@@ -19,6 +26,10 @@
     {
       "source": "aa1",
       "target": "aa2"
+    },
+    {
+      "source": "aa1",
+      "target": "aa3"
     }
   ]
 }

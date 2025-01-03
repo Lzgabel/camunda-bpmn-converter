@@ -2,10 +2,13 @@ package cn.lzgabel.camunda.converter.processing;
 
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.BpmnElementType;
+import cn.lzgabel.camunda.converter.bean.gateway.BranchDefinition;
+import cn.lzgabel.camunda.converter.bean.gateway.GatewayDefinition;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
-import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
+import org.apache.commons.collections.CollectionUtils;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.instance.BpmnModelElementInstance;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
@@ -19,8 +22,7 @@ import org.camunda.bpm.model.xml.instance.ModelElementInstance;
  * @author lizhi
  * @since 1.0.0
  */
-public interface BpmnElementProcessor<
-    E extends BaseDefinition, T extends AbstractBaseElementBuilder> {
+public interface BpmnElementProcessor<E extends BaseDefinition, T extends AbstractFlowNodeBuilder> {
 
   /**
    * 创建新的节点
@@ -31,22 +33,24 @@ public interface BpmnElementProcessor<
    * @throws InvocationTargetException invocationTargetException
    * @throws IllegalAccessException illegalAccessException
    */
-  default String onCreate(AbstractFlowNodeBuilder flowNodeBuilder, BaseDefinition flowNode)
+  default String onCreate(T flowNodeBuilder, BaseDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
     final BpmnModelElementInstance element = flowNodeBuilder.getElement();
     final ModelInstance modelInstance = element.getModelInstance();
     final ModelElementInstance model = modelInstance.getModelElementById(flowNode.getNodeId());
 
-    if (model != null) {
+    if (Objects.nonNull(model)) {
       flowNodeBuilder.connectTo(flowNode.getNodeId());
       return flowNode.getNodeId();
     }
 
     String nodeType = flowNode.getNodeType();
     BpmnElementType elementType = BpmnElementType.bpmnElementTypeFor(nodeType);
-    BpmnElementProcessor<BaseDefinition, AbstractBaseElementBuilder> processor =
+    BpmnElementProcessor<BaseDefinition, AbstractFlowNodeBuilder> processor =
         BpmnElementProcessors.getProcessor(elementType);
-    return processor.onComplete(flowNodeBuilder, flowNode);
+    processor.onComplete(flowNodeBuilder, flowNode);
+
+    return finalizeCompletion(flowNodeBuilder, flowNode);
   }
 
   /**
@@ -60,6 +64,35 @@ public interface BpmnElementProcessor<
    */
   String onComplete(T flowNodeBuilder, E flowNode)
       throws InvocationTargetException, IllegalAccessException;
+
+  /**
+   * 完成后继节点创建
+   *
+   * @param flowNodeBuilder builder
+   * @param flowNode 流程节点参数
+   * @throws InvocationTargetException invocationTargetException
+   * @throws IllegalAccessException illegalAccessException
+   */
+  default String finalizeCompletion(T flowNodeBuilder, BaseDefinition flowNode)
+      throws InvocationTargetException, IllegalAccessException {
+    final String id = flowNode.getNodeId();
+    // 如果还有后续任务，则遍历创建后续任务
+    final BaseDefinition nextNode = flowNode.getNextNode();
+    if (Objects.nonNull(nextNode)) {
+      return onCreate(moveToNode(flowNodeBuilder, id), nextNode);
+    }
+
+    // 非网关节点，且存在多分支出度情况
+    final List<BranchDefinition> branchDefinitions = flowNode.getBranchDefinitions();
+    if (!(flowNode instanceof GatewayDefinition) && CollectionUtils.isNotEmpty(branchDefinitions)) {
+      for (BranchDefinition branchDefinition : branchDefinitions) {
+        onCreate(moveToNode(flowNodeBuilder, id), branchDefinition.getNextNode());
+      }
+      return id;
+    }
+
+    return id;
+  }
 
   /**
    * 循环向上转型, 获取对象的 DeclaredMethod
@@ -88,9 +121,9 @@ public interface BpmnElementProcessor<
    * @param id 目标节点位移标识
    * @return 目标节点类型 builder
    */
-  default AbstractFlowNodeBuilder<?, ?> moveToNode(
-      AbstractFlowNodeBuilder<?, ?> flowNodeBuilder, String id) {
-    return flowNodeBuilder.moveToNode(id);
+  @SuppressWarnings("unchecked")
+  default T moveToNode(T flowNodeBuilder, String id) {
+    return (T) flowNodeBuilder.moveToNode(id);
   }
 
   /**
@@ -121,6 +154,7 @@ public interface BpmnElementProcessor<
           clazz.cast(createTarget.invoke(flowNodeBuilder, clazz, flowNode.getNodeId()));
       instance.setName(flowNode.getNodeName());
       final var builder = instance.builder();
+
       // 创建监听器
       createExecutionListener(builder, flowNode);
       return builder;
@@ -138,7 +172,7 @@ public interface BpmnElementProcessor<
    */
   default void createExecutionListener(
       AbstractFlowNodeBuilder<?, ?> flowNodeBuilder, BaseDefinition flowNode) {
-    flowNode.getListeners().stream()
+    flowNode.getExecutionListeners().stream()
         .filter(Objects::nonNull)
         .forEach(
             listener -> {

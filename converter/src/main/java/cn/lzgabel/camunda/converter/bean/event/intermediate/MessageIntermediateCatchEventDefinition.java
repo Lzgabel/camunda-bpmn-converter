@@ -1,5 +1,6 @@
 package cn.lzgabel.camunda.converter.bean.event.intermediate;
 
+import cn.lzgabel.camunda.converter.bean.event.EventType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -21,6 +22,6 @@ public class MessageIntermediateCatchEventDefinition extends IntermediateCatchEv
 
   @Override
   public String getEventType() {
-    return "message";
+    return EventType.MESSAGE.value();
   }
 }

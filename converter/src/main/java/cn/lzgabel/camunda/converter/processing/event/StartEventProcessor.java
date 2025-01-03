@@ -1,13 +1,9 @@
 package cn.lzgabel.camunda.converter.processing.event;
 
-import cn.lzgabel.camunda.converter.bean.BaseDefinition;
-import cn.lzgabel.camunda.converter.bean.BpmnElementType;
+import cn.lzgabel.camunda.converter.bean.event.EventType;
 import cn.lzgabel.camunda.converter.bean.event.start.*;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
-import cn.lzgabel.camunda.converter.processing.BpmnElementProcessors;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 
 /**
@@ -21,45 +17,45 @@ public class StartEventProcessor
     implements BpmnElementProcessor<StartEventDefinition, StartEventBuilder> {
 
   @Override
-  public String onComplete(StartEventBuilder start, StartEventDefinition flowNode)
+  public String onComplete(StartEventBuilder startEventBuilder, StartEventDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
+    return createStartEvent(startEventBuilder, flowNode);
+  }
+
+  private String createStartEvent(
+      final StartEventBuilder startEventBuilder, final StartEventDefinition flowNode) {
+    startEventBuilder.id(flowNode.getNodeId()).name(flowNode.getNodeName());
     // 事件类型 timer/message 默认：none
-    String eventType = flowNode.getEventType();
-    String nodeName = flowNode.getNodeName();
-    start.name(nodeName);
-    if (StringUtils.isNotBlank(eventType)) {
-      if (EventType.TIMER.isEqual(eventType)) {
-        TimerStartEventDefinition timer = (TimerStartEventDefinition) flowNode;
-        // timer 定义类型： date/cycle/duration
-        String timerDefinitionType = timer.getTimerDefinitionType();
-        if (TimerDefinitionType.DATE.isEqual(timerDefinitionType)) {
-          String timerDefinition = timer.getTimerDefinition();
-          start.timerWithDate(timerDefinition);
-        } else if (TimerDefinitionType.DURATION.isEqual(timerDefinitionType)) {
-          String timerDefinition = timer.getTimerDefinition();
-          start.timerWithDuration(timerDefinition);
-        } else if (TimerDefinitionType.CYCLE.isEqual(timerDefinitionType)) {
-          String timerDefinition = timer.getTimerDefinition();
-          start.timerWithCycle(timerDefinition);
-        }
-      } else if (EventType.MESSAGE.isEqual(eventType)) {
-        MessageStartEventDefinition message = (MessageStartEventDefinition) flowNode;
-        String messageName = message.getMessageName();
-        start.message(messageName);
+    return switch (EventType.from(flowNode.getEventType())) {
+      case TIMER -> createTimerStartEvent(startEventBuilder, (TimerStartEventDefinition) flowNode);
+      case MESSAGE ->
+          createMessageStartEvent(startEventBuilder, (MessageStartEventDefinition) flowNode);
+      default -> flowNode.getNodeId();
+    };
+  }
+
+  private String createMessageStartEvent(
+      final StartEventBuilder startEventBuilder, final MessageStartEventDefinition flowNode) {
+    startEventBuilder.message(flowNode.getMessageName());
+    return flowNode.getNodeId();
+  }
+
+  private String createTimerStartEvent(
+      final StartEventBuilder startEventBuilder, final TimerStartEventDefinition flowNode) {
+    switch (TimerDefinitionType.from(flowNode.getTimerDefinitionType())) {
+      case DATE -> {
+        String timerDefinition = flowNode.getTimerDefinitionExpression();
+        startEventBuilder.timerWithDate(timerDefinition);
+      }
+      case CYCLE -> {
+        String timerDefinition = flowNode.getTimerDefinitionExpression();
+        startEventBuilder.timerWithCycle(timerDefinition);
+      }
+      case DURATION -> {
+        String timerDefinition = flowNode.getTimerDefinitionExpression();
+        startEventBuilder.timerWithDuration(timerDefinition);
       }
     }
-
-    // create execution listener
-    createExecutionListener(start, flowNode);
-
-    String id = start.getElement().getId();
-    BaseDefinition nextNode = flowNode.getNextNode();
-    if (Objects.isNull(nextNode)) {
-      return id;
-    }
-
-    BpmnElementType elementType = BpmnElementType.bpmnElementTypeFor(nextNode.getNodeType());
-    return BpmnElementProcessors.getProcessor(elementType)
-        .onComplete(moveToNode(start, id), nextNode);
+    return flowNode.getNodeId();
   }
 }

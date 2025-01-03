@@ -1,5 +1,6 @@
 package cn.lzgabel.camunda.converter.bean.event.start;
 
+import cn.lzgabel.camunda.converter.bean.event.EventType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -20,7 +21,7 @@ public class TimerStartEventDefinition extends StartEventDefinition {
   /** {@link TimerDefinitionType} */
   @NonNull private String timerDefinitionType;
 
-  @NonNull private String timerDefinition;
+  @NonNull private String timerDefinitionExpression;
 
   @Override
   public String getEventType() {

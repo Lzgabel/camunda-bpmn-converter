@@ -1,13 +1,11 @@
 package cn.lzgabel.camunda.converter.processing.event;
 
-import cn.lzgabel.camunda.converter.bean.BaseDefinition;
+import cn.lzgabel.camunda.converter.bean.event.EventType;
 import cn.lzgabel.camunda.converter.bean.event.intermediate.IntermediateCatchEventDefinition;
 import cn.lzgabel.camunda.converter.bean.event.intermediate.MessageIntermediateCatchEventDefinition;
 import cn.lzgabel.camunda.converter.bean.event.intermediate.TimerIntermediateCatchEventDefinition;
-import cn.lzgabel.camunda.converter.bean.event.start.EventType;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.IntermediateCatchEventBuilder;
 
@@ -26,16 +24,7 @@ public class IntermediateCatchEventProcessor
       final AbstractFlowNodeBuilder flowNodeBuilder,
       final IntermediateCatchEventDefinition flowNode)
       throws InvocationTargetException, IllegalAccessException {
-    // 创建中级捕获节点
-    final String id = createIntermediateCatchEvent(flowNodeBuilder, flowNode);
-
-    // 如果还有后续任务，则遍历创建后续任务
-    final BaseDefinition nextNode = flowNode.getNextNode();
-    if (Objects.nonNull(nextNode)) {
-      return onCreate(moveToNode(flowNodeBuilder, id), nextNode);
-    } else {
-      return id;
-    }
+    return createIntermediateCatchEvent(flowNodeBuilder, flowNode);
   }
 
   private String createIntermediateCatchEvent(
@@ -56,8 +45,8 @@ public class IntermediateCatchEventProcessor
       final IntermediateCatchEventDefinition flowNode) {
     MessageIntermediateCatchEventDefinition message =
         (MessageIntermediateCatchEventDefinition) flowNode;
-    String messageName = message.getMessageName();
-    return intermediateCatchEventBuilder.message(messageName).getElement().getId();
+    intermediateCatchEventBuilder.message(message.getMessageName());
+    return flowNode.getNodeId();
   }
 
   private String createTimerIntermediateCatchEvent(
@@ -68,13 +57,14 @@ public class IntermediateCatchEventProcessor
         (TimerIntermediateCatchEventDefinition) flowNode;
 
     final String expression = timer.getTimerDefinitionExpression();
-    return switch (timer.getTimerDefinitionType()) {
-      case "date" -> intermediateCatchEventBuilder.timerWithDate(expression).getElement().getId();
-      case "duration" ->
-          intermediateCatchEventBuilder.timerWithDuration(expression).getElement().getId();
+    switch (timer.getTimerDefinitionType()) {
+      case "date" -> intermediateCatchEventBuilder.timerWithDate(expression);
+      case "duration" -> intermediateCatchEventBuilder.timerWithDuration(expression);
       default ->
           throw new IllegalArgumentException(
               "未知 timer definition type: " + timer.getTimerDefinitionType());
-    };
+    }
+
+    return flowNode.getNodeId();
   }
 }

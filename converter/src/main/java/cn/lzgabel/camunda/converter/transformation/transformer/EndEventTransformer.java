@@ -1,6 +1,6 @@
 package cn.lzgabel.camunda.converter.transformation.transformer;
 
-import cn.lzgabel.camunda.converter.bean.event.start.EndEventDefinition;
+import cn.lzgabel.camunda.converter.bean.event.end.EndEventDefinition;
 import cn.lzgabel.camunda.converter.transformation.ElementTransformer;
 import cn.lzgabel.camunda.converter.transformation.TransformContext;
 import cn.lzgabel.camunda.converter.transformation.bean.NodeDto;

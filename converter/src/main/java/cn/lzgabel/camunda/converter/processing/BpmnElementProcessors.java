@@ -13,7 +13,7 @@ import cn.lzgabel.camunda.converter.processing.gateway.ParallelGatewayProcessor;
 import cn.lzgabel.camunda.converter.processing.task.*;
 import java.util.EnumMap;
 import java.util.Map;
-import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
+import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 
 public final class BpmnElementProcessors {
 
@@ -44,7 +44,7 @@ public final class BpmnElementProcessors {
     processors.put(BpmnElementType.INTERMEDIATE_CATCH_EVENT, new IntermediateCatchEventProcessor());
   }
 
-  public static <E extends BaseDefinition, T extends AbstractBaseElementBuilder>
+  public static <E extends BaseDefinition, T extends AbstractFlowNodeBuilder>
       BpmnElementProcessor<E, T> getProcessor(final BpmnElementType bpmnElementType) {
 
     final BpmnElementProcessor processor = processors.get(bpmnElementType);

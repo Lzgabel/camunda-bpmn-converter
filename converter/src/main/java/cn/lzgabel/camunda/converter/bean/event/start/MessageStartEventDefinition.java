@@ -1,5 +1,6 @@
 package cn.lzgabel.camunda.converter.bean.event.start;
 
+import cn.lzgabel.camunda.converter.bean.event.EventType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;

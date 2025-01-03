@@ -20,18 +20,18 @@ import lombok.experimental.SuperBuilder;
 public abstract class GatewayDefinition extends BaseDefinition {
 
   /** 分支节点 */
-  private List<BranchNode> branchNodes;
+  private List<BranchDefinition> branchDefinitions;
 
   public abstract static class GatewayDefinitionBuilder<
           C extends GatewayDefinition, B extends GatewayDefinition.GatewayDefinitionBuilder<C, B>>
       extends BaseDefinitionBuilder<C, B> {
 
     public GatewayDefinitionBuilder() {
-      branchNodes = Lists.newArrayList();
+      branchDefinitions = Lists.newArrayList();
     }
 
-    public B branchNode(BranchNode branchNode) {
-      branchNodes.add(branchNode);
+    public B branchDefinition(BranchDefinition branchDefinition) {
+      branchDefinitions.add(branchDefinition);
       return self();
     }
   }

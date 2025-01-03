@@ -1,4 +1,4 @@
-package cn.lzgabel.camunda.converter.bean.event.start;
+package cn.lzgabel.camunda.converter.bean.event;
 
 import java.util.stream.Stream;
 

@@ -1,10 +1,8 @@
 package cn.lzgabel.camunda.converter.processing.task;
 
-import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.task.ReceiveTaskDefinition;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ReceiveTaskBuilder;
 
@@ -27,15 +25,6 @@ public class ReceiveTaskProcessor
     final ReceiveTaskBuilder receiveTaskBuilder =
         (ReceiveTaskBuilder) createInstance(flowNodeBuilder, flowNode);
     receiveTaskBuilder.message(messageName);
-
-    String id = receiveTaskBuilder.getElement().getId();
-
-    // 如果当前任务还有后续任务，则遍历创建后续任务
-    BaseDefinition nextNode = flowNode.getNextNode();
-    if (Objects.nonNull(nextNode)) {
-      return onCreate(moveToNode(flowNodeBuilder, id), nextNode);
-    } else {
-      return id;
-    }
+    return flowNode.getNodeId();
   }
 }

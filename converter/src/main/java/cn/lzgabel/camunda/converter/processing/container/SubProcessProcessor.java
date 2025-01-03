@@ -4,10 +4,8 @@ import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.SubProcessDefinition;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EmbeddedSubProcessBuilder;
-import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.SubProcessBuilder;
 
 /**
@@ -28,25 +26,19 @@ public class SubProcessProcessor
     EmbeddedSubProcessBuilder embeddedSubProcessBuilder = subProcessBuilder.embeddedSubProcess();
 
     // 子流程内部创建开始
-    StartEventBuilder startEventBuilder = embeddedSubProcessBuilder.startEvent();
+    // StartEventBuilder startEventBuilder = embeddedSubProcessBuilder.startEvent().id()
     subProcessBuilder.getElement().setName(flowNode.getNodeName());
-    String lastNode = startEventBuilder.getElement().getId();
+    // String lastNode = startEventBuilder.getElement().getId();
+
     // 创建子流程节点
     BaseDefinition childNode = flowNode.getChildNode();
-    if (Objects.nonNull(childNode)) {
-      lastNode =
-          onCreate(
-              moveToNode(subProcessBuilder, startEventBuilder.getElement().getId()), childNode);
-    }
-    // 子流程内部创建结束
-    moveToNode(startEventBuilder, lastNode).endEvent();
+    // 创建默认开始节点
+    embeddedSubProcessBuilder.startEvent().id(childNode.getNodeId()).name(childNode.getNodeName());
+    onCreate(moveToNode(subProcessBuilder, childNode.getNodeId()), childNode.getNextNode());
 
-    // 如果当前任务还有后续任务，则遍历创建后续任务
-    String id = subProcessBuilder.getElement().getId();
-    BaseDefinition nextNode = flowNode.getNextNode();
-    if (Objects.nonNull(nextNode)) {
-      return onCreate(moveToNode(subProcessBuilder, id), nextNode);
-    }
-    return subProcessBuilder.getElement().getId();
+    // 子流程内部创建结束
+    // moveToNode(startEventBuilder, lastNode).endEvent();
+
+    return flowNode.getNodeId();
   }
 }

@@ -1,10 +1,8 @@
 package cn.lzgabel.camunda.converter.processing.container;
 
-import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.subprocess.CallActivityDefinition;
 import cn.lzgabel.camunda.converter.processing.BpmnElementProcessor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.CallActivityBuilder;
 
@@ -23,13 +21,7 @@ public class CallActivityProcessor
       throws InvocationTargetException, IllegalAccessException {
     final CallActivityBuilder callActivityBuilder =
         (CallActivityBuilder) createInstance(flowNodeBuilder, flowNode);
-
     callActivityBuilder.calledElement(flowNode.getCalledElement());
-    String id = callActivityBuilder.getElement().getId();
-    BaseDefinition childNode = flowNode.getNextNode();
-    if (Objects.nonNull(childNode)) {
-      return onCreate(moveToNode(callActivityBuilder, id), childNode);
-    }
-    return id;
+    return flowNode.getNodeId();
   }
 }

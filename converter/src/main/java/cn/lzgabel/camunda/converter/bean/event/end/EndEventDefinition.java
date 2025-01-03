@@ -1,5 +1,6 @@
-package cn.lzgabel.camunda.converter.bean.event.start;
+package cn.lzgabel.camunda.converter.bean.event.end;
 
+import cn.lzgabel.camunda.converter.bean.BpmnElementType;
 import cn.lzgabel.camunda.converter.bean.event.EventDefinition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,6 @@ public class EndEventDefinition extends EventDefinition {
 
   @Override
   public String getNodeType() {
-    return "endEvent";
+    return BpmnElementType.END_EVENT.getElementTypeName().get();
   }
 }

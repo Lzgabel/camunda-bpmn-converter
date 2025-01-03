@@ -10,7 +10,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.builder.AbstractBaseElementBuilder;
+import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 
@@ -46,7 +46,7 @@ public class BpmnBuilder {
 
       StartEventBuilder startEventBuilder = executableProcess.startEvent();
       BaseDefinition processNode = processDefinition.getProcessNode();
-      BpmnElementProcessor<BaseDefinition, AbstractBaseElementBuilder> processor =
+      BpmnElementProcessor<BaseDefinition, AbstractFlowNodeBuilder> processor =
           BpmnElementProcessors.getProcessor(BpmnElementType.START_EVENT);
       //      String lastNode = processor.onCreate(startEventBuilder, processNode);
       //      processor.moveToNode(startEventBuilder, lastNode).endEvent();

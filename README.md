@@ -53,7 +53,7 @@ Convert json to bpmn for Camunda Platform.
         "nodeType":"exclusiveGateway",
         "nextNode":null
     },
-    "branchNodes":[
+    "branchDefinitions":[
         {
             "nodeName":"条件1",
             "conditionExpression":"=id>1",
@@ -87,7 +87,7 @@ Convert json to bpmn for Camunda Platform.
         "nodeType":"parallelGateway",
         "nextNode":null
     },
-    "branchNodes":[
+    "branchDefinitions":[
         {
             "nextNode":{
                 "nodeName":"审核人2.1",
@@ -136,7 +136,7 @@ Convert json to bpmn for Camunda Platform.
                 "nodeType":"exclusiveGateway",
                 "nextNode":null
             },
-            "branchNodes":[
+            "branchDefinitions":[
                 {
                     "nodeName":"条件1",
                     "conditionExpression":"=id>1",

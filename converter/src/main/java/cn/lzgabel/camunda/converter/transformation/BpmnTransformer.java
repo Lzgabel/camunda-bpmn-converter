@@ -4,14 +4,16 @@ import cn.lzgabel.camunda.converter.BpmnBuilder;
 import cn.lzgabel.camunda.converter.bean.BaseDefinition;
 import cn.lzgabel.camunda.converter.bean.BpmnElementType;
 import cn.lzgabel.camunda.converter.bean.ProcessDefinition;
-import cn.lzgabel.camunda.converter.bean.gateway.BranchNode;
+import cn.lzgabel.camunda.converter.bean.gateway.BranchDefinition;
 import cn.lzgabel.camunda.converter.bean.gateway.GatewayDefinition;
 import cn.lzgabel.camunda.converter.transformation.bean.FlowDto;
 import cn.lzgabel.camunda.converter.transformation.bean.ProcessDefinitionDto;
 import cn.lzgabel.camunda.converter.transformation.transformer.*;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
@@ -43,10 +45,8 @@ public final class BpmnTransformer {
     final var context = new TransformContext();
     visitor.setContext(context);
 
-    // 处理 node
     Optional.ofNullable(request.getNodes()).orElse(List.of()).forEach(visitor::visit);
 
-    // 处理 flow
     Optional.ofNullable(request.getFlows())
         .orElse(List.of())
         .forEach(flow -> this.handleFlow(flow, context));
@@ -58,31 +58,49 @@ public final class BpmnTransformer {
             .processNode(context.start())
             .build();
 
-    final var instance = BpmnBuilder.build(processDefinition);
-    return instance;
+    return BpmnBuilder.build(processDefinition);
   }
 
   private void handleFlow(final FlowDto flow, final TransformContext context) {
     final BaseDefinition source = context.definition(flow.getSource());
     final BaseDefinition target = context.definition(flow.getTarget());
     if (source instanceof final GatewayDefinition gatewayDefinition) {
-      final List<BranchNode> branchNodes =
-          Optional.of(gatewayDefinition.getBranchNodes()).orElse(Lists.newArrayList());
+      final List<BranchDefinition> branchDefinitions =
+          Optional.ofNullable(gatewayDefinition.getBranchDefinitions())
+              .orElse(Lists.newArrayList());
 
-      final var builder = BranchNode.builder();
+      final var builder = BranchDefinition.builder();
       final String conditionExpression = flow.getConditionExpression();
       if (StringUtils.isNotBlank(conditionExpression)) {
         builder.conditionExpression(conditionExpression);
       } else {
         builder.isDefault(flow.isDefaultFlow());
       }
-      final BranchNode branchNode = builder.build();
-      branchNode.setNextNode(target);
+      final BranchDefinition branchDefinition = builder.build();
+      branchDefinition.setNextNode(target);
 
-      branchNodes.add(branchNode);
-      gatewayDefinition.setBranchNodes(branchNodes);
-    } else {
-      source.setNextNode(target);
+      branchDefinitions.add(branchDefinition);
+      gatewayDefinition.setBranchDefinitions(branchDefinitions);
+      return;
     }
+
+    // 如果非网关节点，存在多条分支路径, 将下游节点清空
+    if (Objects.nonNull(source.getNextNode())) {
+      final List<BranchDefinition> branchDefinitions =
+          Optional.ofNullable(source.getBranchDefinitions()).orElse(Lists.newArrayList());
+      final BranchDefinition branchDefinition =
+          BranchDefinition.builder().nextNode(source.getNextNode()).build();
+      branchDefinitions.add(branchDefinition);
+      source.setBranchDefinitions(branchDefinitions);
+      source.setNextNode(null);
+    }
+
+    if (CollectionUtils.isNotEmpty(source.getBranchDefinitions())) {
+      source.getBranchDefinitions().add(BranchDefinition.builder().nextNode(target).build());
+      return;
+    }
+
+    // 设置下游节点
+    source.setNextNode(target);
   }
 }

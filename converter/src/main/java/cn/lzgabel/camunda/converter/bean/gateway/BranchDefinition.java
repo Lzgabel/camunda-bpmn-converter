@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class BranchNode {
+public class BranchDefinition {
 
   @JsonProperty("isDefault")
   private boolean isDefault;
