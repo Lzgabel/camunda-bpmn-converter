@@ -62,5 +62,6 @@
     <module>example/backend</module>
     <module>example/frontend</module>
     <module>converter</module>
+      <module>cli</module>
   </modules>
 </project>

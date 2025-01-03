@@ -64,6 +64,9 @@ import lombok.experimental.SuperBuilder;
 })
 public abstract class BaseDefinition implements Serializable {
 
+  /** 节点ID */
+  private String nodeId;
+
   /** 节点名称 */
   private String nodeName;
 

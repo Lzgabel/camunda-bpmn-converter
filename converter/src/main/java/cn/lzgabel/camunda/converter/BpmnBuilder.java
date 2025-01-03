@@ -48,8 +48,10 @@ public class BpmnBuilder {
       BaseDefinition processNode = processDefinition.getProcessNode();
       BpmnElementProcessor<BaseDefinition, AbstractBaseElementBuilder> processor =
           BpmnElementProcessors.getProcessor(BpmnElementType.START_EVENT);
-      String lastNode = processor.onCreate(startEventBuilder, processNode);
-      processor.moveToNode(startEventBuilder, lastNode).endEvent();
+      //      String lastNode = processor.onCreate(startEventBuilder, processNode);
+      //      processor.moveToNode(startEventBuilder, lastNode).endEvent();
+
+      processor.onCreate(startEventBuilder, processNode);
       BpmnModelInstance modelInstance = startEventBuilder.done();
       Bpmn.validateModel(modelInstance);
 

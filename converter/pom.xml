@@ -19,8 +19,8 @@
   <properties>
     <camunda.version>7.18.0</camunda.version>
     <java.version>17</java.version>
-    <plugin.version.googlejavaformat>1.7</plugin.version.googlejavaformat>
-    <plugin.version.spotless>2.22.4</plugin.version.spotless>
+    <plugin.version.googlejavaformat>1.22.0</plugin.version.googlejavaformat>
+    <plugin.version.spotless>2.43.0</plugin.version.spotless>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 

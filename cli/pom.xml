@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>cn.lzgabel</groupId>
+  <version>1.0-SNAPSHOT</version>
+  <artifactId>cbc-cli</artifactId>
+
+
+  <name>CAMUNDA BPMN CONVERTER CLI</name>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.picocli>4.7.5</version.picocli>
+    <version.graalvm>21.0.0</version.graalvm>
+    <version.jackson>2.17.2</version.jackson>
+    <native.maven.plugin.version>0.10.2</native.maven.plugin.version>
+    <imageName>cbc-cli</imageName>
+    <mainClass>cn.lzgabel.camunda.converter.cli.CamundaBpmnConverterClient</mainClass>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>${version.picocli}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.graalvm.nativeimage</groupId>
+      <artifactId>svm</artifactId>
+      <version>${version.graalvm}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--    <dependency>-->
+    <!--      <groupId>com.github.erosb</groupId>-->
+    <!--      <artifactId>json-sKema</artifactId>-->
+    <!--      <version>0.15.0</version>-->
+    <!--    </dependency>-->
+
+
+    <dependency>
+      <!-- Used to process JSON -->
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${version.jackson}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>1.5.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>2.0.13</version>
+    </dependency>
+
+    <dependency>
+      <groupId>cn.lzgabel</groupId>
+      <artifactId>camunda-bpmn-converter</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+
+  <!--  <build>-->
+  <!--    <resources>-->
+  <!--      <resource>-->
+  <!--        <directory>src/main/resources</directory>-->
+  <!--      </resource>-->
+  <!--    </resources>-->
+
+  <!--    <plugins>-->
+  <!--      <plugin>-->
+  <!--        <groupId>org.apache.maven.plugins</groupId>-->
+  <!--        <artifactId>maven-compiler-plugin</artifactId>-->
+  <!--        <configuration>-->
+  <!--          <annotationProcessorPaths>-->
+  <!--            <path>-->
+  <!--              <groupId>info.picocli</groupId>-->
+  <!--              <artifactId>picocli-codegen</artifactId>-->
+  <!--              <version>${version.picocli}</version>-->
+  <!--            </path>-->
+  <!--          </annotationProcessorPaths>-->
+  <!--          <compilerArgs>-->
+  <!--            <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>-->
+  <!--          </compilerArgs>-->
+  <!--        </configuration>-->
+  <!--      </plugin>-->
+
+  <!--      <plugin>-->
+  <!--        <groupId>org.apache.maven.plugins</groupId>-->
+  <!--        <artifactId>maven-assembly-plugin</artifactId>-->
+  <!--        <version>3.6.0</version>-->
+  <!--        <executions>-->
+  <!--          <execution>-->
+  <!--            <id>make-assembly</id>-->
+  <!--            <phase>package</phase>-->
+  <!--            <goals>-->
+  <!--              <goal>single</goal>-->
+  <!--            </goals>-->
+  <!--            <configuration>-->
+  <!--              <archive>-->
+  <!--                <manifest>-->
+  <!--                  <mainClass>${mainClass}</mainClass>-->
+  <!--                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
+  <!--                </manifest>-->
+  <!--              </archive>-->
+  <!--              <descriptorRefs>-->
+  <!--                <descriptorRef>jar-with-dependencies</descriptorRef>-->
+  <!--              </descriptorRefs>-->
+  <!--            </configuration>-->
+  <!--          </execution>-->
+  <!--        </executions>-->
+  <!--      </plugin>-->
+
+  <!--      <plugin>-->
+  <!--        <groupId>org.codehaus.mojo</groupId>-->
+  <!--        <artifactId>exec-maven-plugin</artifactId>-->
+  <!--        <version>3.0.0</version>-->
+  <!--        <executions>-->
+  <!--          <execution>-->
+  <!--            <id>java-agent</id>-->
+  <!--            <goals>-->
+  <!--              <goal>exec</goal>-->
+  <!--            </goals>-->
+  <!--            <configuration>-->
+  <!--              <executable>java</executable>-->
+  <!--              <workingDirectory>${project.build.directory}</workingDirectory>-->
+  <!--              <arguments>-->
+  <!--                <argument>-classpath</argument>-->
+  <!--                <classpath/>-->
+  <!--                <argument>${mainClass}</argument>-->
+  <!--              </arguments>-->
+  <!--            </configuration>-->
+  <!--          </execution>-->
+  <!--          <execution>-->
+  <!--            <id>native</id>-->
+  <!--            <goals>-->
+  <!--              <goal>exec</goal>-->
+  <!--            </goals>-->
+  <!--            <configuration>-->
+  <!--              <executable>${project.build.directory}/${imageName}</executable>-->
+  <!--              <workingDirectory>${project.build.directory}</workingDirectory>-->
+  <!--            </configuration>-->
+  <!--          </execution>-->
+  <!--        </executions>-->
+  <!--      </plugin>-->
+
+  <!--      <plugin>-->
+  <!--        <groupId>org.graalvm.buildtools</groupId>-->
+  <!--        <artifactId>native-maven-plugin</artifactId>-->
+  <!--        <version>${native.maven.plugin.version}</version>-->
+  <!--        <extensions>true</extensions>-->
+  <!--        <executions>-->
+  <!--          <execution>-->
+  <!--            <id>build-native</id>-->
+  <!--            <goals>-->
+  <!--              <goal>build</goal>-->
+  <!--            </goals>-->
+  <!--            <phase>package</phase>-->
+  <!--          </execution>-->
+  <!--          <execution>-->
+  <!--            <id>test-native</id>-->
+  <!--            <goals>-->
+  <!--              <goal>test</goal>-->
+  <!--            </goals>-->
+  <!--            <phase>test</phase>-->
+  <!--          </execution>-->
+  <!--        </executions>-->
+  <!--        <configuration>-->
+  <!--          <fallback>false</fallback>-->
+  <!--          <buildArgs>-->
+  <!--            <arg>-H:DashboardDump=fortune -H:+DashboardAll</arg>-->
+  <!--          </buildArgs>-->
+  <!--        </configuration>-->
+  <!--      </plugin>-->
+  <!--    </plugins>-->
+  <!--  </build>-->
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.12.1</version>
+        <configuration>
+          <fork>true</fork>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>info.picocli</groupId>
+              <artifactId>picocli-codegen</artifactId>
+              <version>${version.picocli}</version>
+            </path>
+          </annotationProcessorPaths>
+          <compilerArgs>
+            <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>demo.Fortune</mainClass>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>${mainClass}</mainClass>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>native</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+            <version>${native.maven.plugin.version}</version>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>build-native</id>
+                <goals>
+                  <goal>compile-no-fork</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+              <execution>
+                <id>test-native</id>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <phase>test</phase>
+              </execution>
+            </executions>
+            <configuration>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>

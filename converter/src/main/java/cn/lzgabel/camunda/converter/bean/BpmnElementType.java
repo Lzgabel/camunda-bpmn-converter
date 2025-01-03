@@ -62,6 +62,10 @@ public enum BpmnElementType {
     return Optional.ofNullable(this.elementTypeClass);
   }
 
+  public boolean isEquals(final String elementTypeName) {
+    return this.elementTypeName.equals(elementTypeName);
+  }
+
   public static BpmnElementType bpmnElementTypeFor(final String elementTypeName) {
     return Arrays.stream(values())
         .filter(
